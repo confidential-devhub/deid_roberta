@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deid-roberta
+  labels:
+    app: deid-roberta
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deid-roberta
+  template:
+    metadata:
+      labels:
+        app: deid-roberta
+    spec:
+      containers:
+      - name: deid-roberta
+        image: deid-roberta:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        env:
+        - name: UVICORN_DISABLE_IPV6
+          value: "true"
+        # Optional: Uncomment to use HTTPS with certificates from a secret
+        # - name: SSL_CERT
+        #   value: /app/certs/tls.crt
+        # - name: SSL_KEY
+        #   value: /app/certs/tls.key
+        # volumeMounts:
+        # - name: tls-certs
+        #   mountPath: /app/certs
+        #   readOnly: true
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+      # Optional: Uncomment to mount TLS certificates from a secret
+      # volumes:
+      # - name: tls-certs
+      #   secret:
+      #     secretName: deid-roberta-tls
+
