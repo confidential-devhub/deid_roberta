@@ -1,0 +1,41 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: deid-roberta
+  labels:
+    app: deid-roberta
+spec:
+  to:
+    kind: Service
+    name: deid-roberta
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  # Alternative TLS configurations:
+  # 
+  # For passthrough (app handles TLS):
+  # tls:
+  #   termination: passthrough
+  #
+  # For re-encrypt (Route terminates TLS and re-encrypts to pod):
+  # tls:
+  #   termination: reencrypt
+  #   destinationCACertificate: |-
+  #     <CA certificate for pod's TLS certificate>
+  #
+  # For custom certificate (replace with your cert/key):
+  # tls:
+  #   termination: edge
+  #   certificate: |-
+  #     -----BEGIN CERTIFICATE-----
+  #     <your certificate>
+  #     -----END CERTIFICATE-----
+  #   key: |-
+  #     -----BEGIN PRIVATE KEY-----
+  #     <your private key>
+  #     -----END PRIVATE KEY-----
+  #   insecureEdgeTerminationPolicy: Redirect
+

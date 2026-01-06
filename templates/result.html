@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Record Anonymized</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        .record-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .record-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        .record-item {
+            margin-bottom: 15px;
+        }
+        .record-label {
+            font-weight: 600;
+            color: #555;
+            display: inline-block;
+            min-width: 200px;
+            margin-bottom: 5px;
+        }
+        .record-value {
+            color: #333;
+            line-height: 1.6;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="date"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+            background: white;
+        }
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 400px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        textarea:read-only {
+            background: #f8f9fa;
+            cursor: default;
+        }
+        .edit-note {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+            font-size: 0.9em;
+        }
+        .edit-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .edit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .edit-btn:active {
+            transform: translateY(0);
+        }
+        .save-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 4px solid #28a745;
+            font-size: 0.9em;
+            text-align: center;
+        }
+        .editing-indicator {
+            display: none;
+            color: #667eea;
+            font-size: 0.9em;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        .record-text-box {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .record-text-box h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        .anonymized {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .send-btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+        .send-btn:active {
+            transform: translateY(0);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Medical Record</h1>
+            <p>Anonymized</p>
+        </div>
+
+        {% if success_message %}
+        <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #28a745;">
+            ✅ {{ success_message }}
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #dc3545;">
+            ❌ {{ error }}
+        </div>
+        {% endif %}
+
+        <div class="edit-note">
+            Click "Edit" to modify the anonymized medical record. Changes are automatically saved when you finish editing.
+        </div>
+
+        <form method="POST" action="/send" id="uploadForm">
+            <div class="record-text-box">
+                <h2>Medical Record</h2>
+                <textarea id="clinicalNote" name="clinical_note" readonly required>{% if clinical_note %}{{ clinical_note }}{% endif %}</textarea>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button type="button" id="editBtn" class="edit-btn">✏️ Edit</button>
+                    <div id="editingIndicator" class="editing-indicator">Editing mode - Click outside the text box or press Escape to save</div>
+                    <div id="saveMessage" class="save-message">✓ Changes saved automatically</div>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <button type="submit" class="send-btn" id="uploadBtn">Upload</button>
+                <a href="/" class="back-btn" style="margin-left: 10px;">← Back to Form</a>
+            </div>
+        </form>
+
+        <script>
+            const editBtn = document.getElementById('editBtn');
+            const clinicalNote = document.getElementById('clinicalNote');
+            const editingIndicator = document.getElementById('editingIndicator');
+            const saveMessage = document.getElementById('saveMessage');
+            let isEditing = false;
+
+            function startEditing() {
+                isEditing = true;
+                clinicalNote.removeAttribute('readonly');
+                clinicalNote.style.background = 'white';
+                clinicalNote.style.cursor = 'text';
+                clinicalNote.focus();
+                editBtn.style.display = 'none';
+                editingIndicator.style.display = 'block';
+                saveMessage.style.display = 'none';
+            }
+
+            function finishEditing() {
+                if (!isEditing) return;
+                
+                isEditing = false;
+                clinicalNote.setAttribute('readonly', 'readonly');
+                clinicalNote.style.background = '#f8f9fa';
+                clinicalNote.style.cursor = 'default';
+                editBtn.style.display = 'inline-block';
+                editingIndicator.style.display = 'none';
+                
+                // Show save message
+                saveMessage.style.display = 'block';
+                setTimeout(function() {
+                    saveMessage.style.display = 'none';
+                }, 3000);
+            }
+
+            editBtn.addEventListener('click', startEditing);
+
+            // Finish editing when clicking outside the textarea
+            document.addEventListener('click', function(event) {
+                if (isEditing && !clinicalNote.contains(event.target) && event.target !== editBtn) {
+                    finishEditing();
+                }
+            });
+
+            // Finish editing on Escape key
+            clinicalNote.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && isEditing) {
+                    event.preventDefault();
+                    finishEditing();
+                }
+            });
+        </script>
+
+        <div class="footer">
+            <p>This document has been anonymized using deid_roberta_i2b2 model</p>
+        </div>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deid-roberta
+  labels:
+    app: deid-roberta
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deid-roberta
+  template:
+    metadata:
+      labels:
+        app: deid-roberta
+    spec:
+      containers:
+      - name: deid-roberta
+        image: quay.io/eesposit/deid-server:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        env:
+        - name: UVICORN_DISABLE_IPV6
+          value: "true"
+        # Required for Azure Blob Storage upload functionality:
+        - name: AZURE_STORAGE_CONNECTION_STRING
+          # TODO: Replace with actual Azure Storage Connection String
+          value: INSERT_AZURE_STORAGE_CONNECTION_STRING
+          # valueFrom:
+          #   secretKeyRef:
+          #     name: azure-storage-secret
+          #     key: connection-string
+        # Optional: Container name (defaults to 'medical-records')
+        # - name: AZURE_STORAGE_CONTAINER_NAME
+        #   value: "medical-records"
+        # Optional: Uncomment to use HTTPS with mTLS (mutual TLS)
+        # - name: SSL_CERT
+        #   value: /app/certs/tls.crt
+        # - name: SSL_KEY
+        #   value: /app/certs/tls.key
+        # - name: SSL_CA_CERTS
+        #   value: /app/certs/ca.crt
+        # volumeMounts:
+        # - name: tls-certs
+        #   mountPath: /app/certs
+        #   readOnly: true
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+      # Optional: Uncomment to mount TLS certificates from a secret for mTLS
+      # The secret should contain:
+      #   tls.crt - Server certificate
+      #   tls.key - Server private key
+      #   ca.crt - CA certificate for client certificate verification
+      # volumes:
+      # - name: tls-certs
+      #   secret:
+      #     secretName: deid-roberta-tls
+

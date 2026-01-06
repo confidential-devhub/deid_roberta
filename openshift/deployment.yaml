@@ -1,63 +1,84 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: deid-roberta
-  labels:
-    app: deid-roberta
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: deid-roberta
-  template:
-    metadata:
-      labels:
+    labels:
         app: deid-roberta
-    spec:
-      containers:
-      - name: deid-roberta
-        image: deid-roberta:latest
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 8080
-          name: http
-          protocol: TCP
-        env:
-        - name: UVICORN_DISABLE_IPV6
-          value: "true"
-        # Optional: Uncomment to use HTTPS with certificates from a secret
-        # - name: SSL_CERT
-        #   value: /app/certs/tls.crt
-        # - name: SSL_KEY
-        #   value: /app/certs/tls.key
-        # volumeMounts:
-        # - name: tls-certs
-        #   mountPath: /app/certs
-        #   readOnly: true
-        resources:
-          requests:
-            memory: "2Gi"
-            cpu: "500m"
-          limits:
-            memory: "4Gi"
-            cpu: "2000m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 30
-          timeoutSeconds: 5
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-      # Optional: Uncomment to mount TLS certificates from a secret
-      # volumes:
-      # - name: tls-certs
-      #   secret:
-      #     secretName: deid-roberta-tls
-
+    name: deid-roberta
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: deid-roberta
+    template:
+        metadata:
+            labels:
+                app: deid-roberta
+        spec:
+            containers:
+                - env:
+                    - name: UVICORN_DISABLE_IPV6
+                      value: "true"
+                    - name: AZURE_STORAGE_CONNECTION_STRING
+                      # TODO: Replace with actual Azure Storage Connection String
+                      value: INSERT_AZURE_STORAGE_CONNECTION_STRING
+                  image: quay.io/eesposit/deid-server:latest
+                  imagePullPolicy: Always
+                  livenessProbe:
+                    httpGet:
+                        path: /health
+                        port: 8080
+                    initialDelaySeconds: 60
+                    periodSeconds: 30
+                    timeoutSeconds: 5
+                  name: deid-roberta
+                  ports:
+                    - containerPort: 8080
+                      name: http
+                      protocol: TCP
+                  readinessProbe:
+                    httpGet:
+                        path: /health
+                        port: 8080
+                    initialDelaySeconds: 30
+                    periodSeconds: 10
+                    timeoutSeconds: 5
+                  resources:
+                    limits:
+                        cpu: 2000m
+                        memory: 4Gi
+                    requests:
+                        cpu: 500m
+                        memory: 2Gi
+                - env:
+                    - name: TLS_CERT_URI
+                      value: kbs:///default/sidecar-tls-deid-roberta/server-cert
+                    - name: TLS_KEY_URI
+                      value: kbs:///default/sidecar-tls-deid-roberta/server-key
+                    - name: CLIENT_CA_URI
+                      value: kbs:///default/sidecar-tls/client-ca
+                    - name: HTTPS_PORT
+                      value: "8443"
+                    - name: FORWARD_PORT
+                      value: "8080"
+                    - name: POD_NAME
+                      valueFrom:
+                        fieldRef:
+                            fieldPath: metadata.name
+                    - name: POD_NAMESPACE
+                      valueFrom:
+                        fieldRef:
+                            fieldPath: metadata.namespace
+                  image: quay.io/eesposit/coco-secure-access:latest
+                  name: coco-secure-access
+                  ports:
+                    - containerPort: 8443
+                      name: https
+                      protocol: TCP
+                  resources:
+                    limits:
+                        cpu: 100m
+                        memory: 128Mi
+                    requests:
+                        cpu: 50m
+                        memory: 64Mi
+            runtimeClassName: kata-remote
