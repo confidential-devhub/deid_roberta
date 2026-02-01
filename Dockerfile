@@ -76,13 +76,7 @@ WORKDIR /app
 COPY app.py .
 COPY templates/ templates/
 COPY start.sh /app/start.sh
-COPY start_mtls.py /app/start_mtls.py
-RUN chmod +x /app/start.sh /app/start_mtls.py
-
-# Create directory for SSL certificates
-RUN mkdir -p /app/certs && \
-    chgrp -R 0 /app/certs && \
-    chmod -R g+rwX /app/certs
+RUN chmod +x /app/start.sh
 
 EXPOSE 8080
 
