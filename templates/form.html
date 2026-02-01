@@ -88,13 +88,29 @@
             border-radius: 6px;
             font-weight: 500;
             text-align: center;
+            transition: opacity 0.5s ease-out;
+        }
+        .success-message.fade-out {
+            opacity: 0;
+            margin-bottom: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            overflow: hidden;
         }
     </style>
     <script>
-        // Set today's date as default
+        // Set today's date as default; hide success message after 30 seconds
         window.onload = function() {
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('date').value = today;
+
+            const successEl = document.getElementById('success-message');
+            if (successEl) {
+                setTimeout(function() {
+                    successEl.classList.add('fade-out');
+                    setTimeout(function() { successEl.remove(); }, 500);
+                }, 30000);
+            }
         };
     </script>
 </head>
@@ -102,7 +118,7 @@
     <div class="container">
         <h1>🏥 Hospital Patient Form</h1>
         {% if upload_success %}
-        <div class="success-message">Successfully uploaded to Azure Blob Storage</div>
+        <div id="success-message" class="success-message">Successfully uploaded to Azure Blob Storage</div>
         {% endif %}
         <form method="POST" action="/submit">
             <div class="form-group">
