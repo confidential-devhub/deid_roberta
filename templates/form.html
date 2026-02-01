@@ -79,6 +79,16 @@
         .submit-btn:active {
             transform: translateY(0);
         }
+        .success-message {
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 6px;
+            font-weight: 500;
+            text-align: center;
+        }
     </style>
     <script>
         // Set today's date as default
@@ -91,6 +101,9 @@
 <body>
     <div class="container">
         <h1>🏥 Hospital Patient Form</h1>
+        {% if upload_success %}
+        <div class="success-message">Successfully uploaded to Azure Blob Storage</div>
+        {% endif %}
         <form method="POST" action="/submit">
             <div class="form-group">
                 <label for="date">Date:</label>

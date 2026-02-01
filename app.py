@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from starlette.templating import Jinja2Templates
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
@@ -45,9 +45,12 @@ def redact(input_data: TextInput):
     return {"redacted": redacted}
 
 @app.get("/", response_class=HTMLResponse)
-async def form_page(request: Request):
+async def form_page(request: Request, upload_success: bool = False):
     """Display the hospital patient form"""
-    return templates.TemplateResponse("form.html", {"request": request})
+    return templates.TemplateResponse("form.html", {
+        "request": request,
+        "upload_success": upload_success
+    })
 
 def format_clinical_note(date: str, patient_name: str, email: str, ssn: str,
                         address: str, department: str, symptoms: str,
@@ -208,12 +211,8 @@ async def send_to_azure(
             # Clean up temporary file
             os.unlink(tmp_file_path)
 
-            # Return success message with the clinical note
-            return templates.TemplateResponse("result.html", {
-                "request": request,
-                "clinical_note": clinical_note,
-                "success_message": f"Successfully uploaded to Azure Blob Storage as {filename}"
-            })
+            # Redirect to main page with success flag
+            return RedirectResponse(url="/?upload_success=true", status_code=303)
 
         except Exception as e:
             # Clean up temporary file on error
