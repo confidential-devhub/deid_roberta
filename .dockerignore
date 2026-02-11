@@ -1,0 +1,33 @@
+# Git and version control
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info
+.eggs
+*.egg
+.venv
+venv
+env
+
+# IDE and local files
+.cursor
+.vscode
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Docs and tests (not needed in runtime image)
+README.md
+*.md
+tests
+*.rst
+
+# OpenShift/k8s manifests (not part of app runtime)
+openshift
