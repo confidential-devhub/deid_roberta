@@ -47,10 +47,11 @@ def redact(input_data: TextInput):
 @app.get("/", response_class=HTMLResponse)
 async def form_page(request: Request, upload_success: bool = False):
     """Display the hospital patient form"""
-    return templates.TemplateResponse("form.html", {
-        "request": request,
-        "upload_success": upload_success
-    })
+    return templates.TemplateResponse(
+        request,
+        "form.html",
+        {"upload_success": upload_success},
+    )
 
 def format_clinical_note(date: str, patient_name: str, email: str, ssn: str,
                         address: str, department: str, symptoms: str,
@@ -154,10 +155,7 @@ async def submit_form(
     anonymized_data['clinical_note'] = anonymized_note
 
     # Render the result template with anonymized data
-    return templates.TemplateResponse("result.html", {
-        "request": request,
-        **anonymized_data
-    })
+    return templates.TemplateResponse(request, "result.html", anonymized_data)
 
 @app.post("/send", response_class=HTMLResponse)
 async def send_to_azure(
@@ -169,11 +167,14 @@ async def send_to_azure(
         # Get Azure connection string from environment variable
         azure_connection_string = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
         if not azure_connection_string:
-            return templates.TemplateResponse("result.html", {
-                "request": request,
-                "error": "Azure connection string not configured",
-                "clinical_note": clinical_note
-            })
+            return templates.TemplateResponse(
+                request,
+                "result.html",
+                {
+                    "error": "Azure connection string not configured",
+                    "clinical_note": clinical_note,
+                },
+            )
 
         # Create a temporary file with the clinical note
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -222,8 +223,11 @@ async def send_to_azure(
 
     except Exception as e:
         # Return error message with the clinical note so user can try again
-        return templates.TemplateResponse("result.html", {
-            "request": request,
-            "clinical_note": clinical_note,
-            "error": f"Error uploading to Azure: {str(e)}"
-        })
+        return templates.TemplateResponse(
+            request,
+            "result.html",
+            {
+                "clinical_note": clinical_note,
+                "error": f"Error uploading to Azure: {str(e)}",
+            },
+        )
